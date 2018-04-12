@@ -4,6 +4,9 @@
   "main": "index.js",
   "author": "Joel Sequeira <joelseq96@gmail.com> (https://twitter.com/joelseq03)",
   "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "aws-sdk": "^2.224.1",
     "body-parser": "^1.18.2",
