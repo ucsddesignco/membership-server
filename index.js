@@ -403,7 +403,7 @@ function generateHTMLBody(firstName, qrUrl) {
                       <div class="">
     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
     <div style="color:#555555;line-height:120%;font-family:'Open Sans', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-      <div style="font-size:12px;line-height:14px;font-family:'Open Sans', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 18px; line-height: 21px;">Hey ${firstName}!</span><br><br><span style="font-size: 18px; line-height: 21px;">Thank you for signing up to be a member of our community! Here's a QR Code that you can use to check in at future events:</span></p><br><img src="${qrUrl}" alt="QR Code"></div>	
+      <div style="font-size:12px;line-height:14px;font-family:'Open Sans', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 18px; line-height: 21px;">Hey ${firstName}!</span><br><br><span style="font-size: 18px; line-height: 21px;">Thank you for signing up to be a member of our community! Here's your unique QR Code so that you don’t need to fill out that long form again although we know you want to ;)</span></p><br><img src="${qrUrl}" alt="QR Code"></div>	
     </div>
     <!--[if mso]></td></tr></table><![endif]-->
   </div>
