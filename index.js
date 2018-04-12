@@ -82,9 +82,9 @@ app.post('/members', async (req, res) => {
     });
     const memberFirstName = name.split(' ')[0];
     const emailInfo = {
-      from: FROM_EMAIL,
+      from: `Design at UCSD Membership <${FROM_EMAIL}>`,
       to: email,
-      subject: 'Design at UCSD Membership',
+      subject: 'Welcome to Design at UCSD!',
       html: generateHTMLBody(memberFirstName, qrUrl),
     }
 
