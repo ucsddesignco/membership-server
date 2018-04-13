@@ -98,7 +98,7 @@ app.post('/members', async (req, res) => {
       const newMember = new Member({
         email,
         qrUrl,
-        emailSent: true,
+        checkInDates: [],
       });
       
       // Save new member info to the DB
