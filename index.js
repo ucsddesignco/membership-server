@@ -197,7 +197,10 @@ app.post('/checkin', (req, res) => {
           // Check to see if currentRow is target user
           if (email === currentEmail) {
             // Find the column for the current date, if it doesn't exist create new one
-            const currentDate = new Date(Date.now()).toDateString();
+            let currentDate = new Date(Date.now());
+            // Adjust time to match US Timezone
+            currentDate.setHours(currentDate.getHours() - 8);
+            currentDateString = currentDate.toString();
             // The column that corresponds to the current date
             let currentDateCol;
             // Get array of all headers that are not empty
