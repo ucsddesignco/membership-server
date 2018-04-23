@@ -161,6 +161,7 @@ app.post('/members', async (req, res) => {
 
 app.post('/checkin', (req, res) => {
   const { email, token } = req.body;
+  console.log(email);
 
   // req.body should have email and token
   if (!email || !token) {
@@ -176,19 +177,14 @@ app.post('/checkin', (req, res) => {
   const data = [];
   return sheets.spreadsheets.values.get(
     {
-      oauth2Client,
+      auth: oauth2Client,
       spreadsheetId: SPREADSHEET_ID,
-      range: 'Form Responses 1!A2:Z',
+      range: 'Form Responses 1!B1:Z',
     },
     function(err, response) {
       if (err) {
         console.log('The API returned an error: ' + err);
-        return res(null, {
-          statusCode: 500,
-          body: JSON.stringify({
-            message: 'Something went wrong!',
-          }),
-        });
+        return res.status(500).json({ message: 'Something went wrong!' });
       }
       const rows = response.values;
       if (rows.length == 0) {
@@ -204,45 +200,50 @@ app.post('/checkin', (req, res) => {
             const currentDate = new Date(Date.now()).toDateString();
             // The column that corresponds to the current date
             let currentDateCol;
-            const rowLength = row[0].length;
+            // Get array of all headers that are not empty
+            const headerRow = rows[0].filter(header => !!header);
+            const rowLength = headerRow.length;
+            console.log(rowLength);
+
             // Check the latest date to see if it matches today's date
-            if (currentDate === row[0][rowLength - 1]) {
-              currentDateCol = ALPHABET_MAP[rowLength - 1];
+            if (currentDate === headerRow[rowLength - 1]) {
+              // Get the index for the column
+              const colNum = rowLength - 1;
+              currentDateCol = ALPHABET_MAP[colNum];
               // Check to see if user already checked in for current event
-              if (row[rowLength - 1] === 'yes') {
+              if (row[colNum] === 'yes') {
                 return res
                   .status(409)
-                  .json({ message: `${fullName} already checked in.` });
+                  .json({ message: `${currentFullName} already checked in.` });
               }
 
               // If not, create a new column for today's date
             } else {
-              currentDateCol = ALPHABET_MAP[rowLength];
+              const colNum = rowLength;
+              currentDateCol = ALPHABET_MAP[colNum];
               const values = [[currentDate]];
               data.push({
                 range: `Form Responses 1!${currentDateCol}1`,
                 majorDimension: 'ROWS',
-                resource: {
-                  values,
-                },
+                values,
               });
             }
 
             const values = [['yes']];
             data.push({
-              range: `Form Responses 1!${currentDateCol}${i + 2}`,
+              range: `Form Responses 1!${currentDateCol}${i + 1}`,
               majorDimension: 'ROWS',
-              resource: {
-                values,
-              },
+              values,
             });
 
             return sheets.spreadsheets.values.batchUpdate(
               {
-                oauth2Client,
+                auth: oauth2Client,
                 spreadsheetId: SPREADSHEET_ID,
-                valueInputOption: 'USER_ENTERED',
-                data,
+                resource: {
+                  valueInputOption: 'USER_ENTERED',
+                  data,
+                },
               },
               (err, response) => {
                 if (err) {
@@ -252,7 +253,7 @@ app.post('/checkin', (req, res) => {
                     .json({ message: 'Something went wrong!' });
                 }
 
-                return res.status(200).json({ message: fullName });
+                return res.status(200).json({ message: currentFullName });
               },
             );
           }
