@@ -31,7 +31,7 @@ const MAILGUN_DOMAIN = 'mg.designatucsd.org';
 const FROM_EMAIL = 'membership@designatucsd.org';
 const DB_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 8080;
-const SPREADSHEET_ID = '1nB5g4mCWjM3T0b40H40ypNyIoSyOWVekQeyQ58c3D7U';
+const SPREADSHEET_ID = '1ujjM7Wj2I3IJ6EiZbiWdN90BEcUieG8GxtvQYPJW2NQ';
 const ALPHABET_MAP = [
   'B',
   'C',
