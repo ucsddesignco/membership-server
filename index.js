@@ -31,6 +31,34 @@ const MAILGUN_DOMAIN = 'mg.designatucsd.org';
 const FROM_EMAIL = 'membership@designatucsd.org';
 const DB_URI = process.env.DB_URI;
 const PORT = process.env.PORT || 8080;
+const SPREADSHEET_ID = '1nB5g4mCWjM3T0b40H40ypNyIoSyOWVekQeyQ58c3D7U';
+const ALPHABET_MAP = [
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+];
 
 mongoose.connect(DB_URI);
 mongoose.Promise = global.Promise;
@@ -43,6 +71,7 @@ app.use(logger('dev'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.static('./public'));
 app.disable('x-powered-by');
 app.enable('trust proxy');
 
@@ -86,7 +115,7 @@ app.post('/members', async (req, res) => {
       to: email,
       subject: 'Welcome to Design at UCSD!',
       html: generateHTMLBody(memberFirstName, qrUrl),
-    }
+    };
 
     // Send Email
     mailgun.messages().send(emailInfo, (err, body) => {
@@ -100,57 +129,147 @@ app.post('/members', async (req, res) => {
         qrUrl,
         checkInDates: [],
       });
-      
+
       // Save new member info to the DB
-      newMember.save((err) => {
+      newMember.save(err => {
         if (err) {
           return res.status(500).json({ message: 'Could not save new member' });
         }
-  
+
         // Add Member to mailing list
         const members = [
           {
             address: email,
-          }
+          },
         ];
-        mailgun.lists('membership@mg.designatucsd.org').members().add({ members, subscribed: true }, (err, body) => {
-          if (err) {
-            console.log(`Failed to add ${email} to mailing list`);
-          }
-          return res.status(201).json(newMember);
-        });
+        mailgun
+          .lists('membership@mg.designatucsd.org')
+          .members()
+          .add({ members, subscribed: true }, (err, body) => {
+            if (err) {
+              console.log(`Failed to add ${email} to mailing list`);
+            }
+            return res.status(201).json(newMember);
+          });
       });
-    })
+    });
   } catch (e) {
     console.log(e);
     return res.status(500).json({ error: 'Failed to upload QR code' });
   }
 });
 
-// app.post('/generate', (req, res) => {
-//   // req.body should have token, spreadsheetId, startRow, qrCol
-//   const { token, spreadsheetId, startRow, qrCol } = req.body;
+app.post('/checkin', (req, res) => {
+  const { email, token } = req.body;
 
-//   // Check to make sure all fields provided
-//   if (!token || !spreadsheetId || !startRow || !qrCol) {
-//     return res.status(400).json({ error: 'Make sure all fields are provided' });
-//   }
+  // req.body should have email and token
+  if (!email || !token) {
+    res.status(400).json({ message: 'Bad Request' });
+  }
 
-//   const clientSecret = process.env.CLIENT_SECRET;
-//   const clientId = process.env.CLIENT_ID;
-//   const auth = new googleAuth();
-//   const oauth2Client = new auth.OAuth2(clientId, clientSecret);
-//   oauth2Client.credentials = token;
-//   return generateQRUrls(oauth2Client, res.body, res);
-// });
+  const clientId = process.env.CLIENT_ID;
+  const clientSecret = process.env.CLIENT_SECRET;
+  const auth = new googleAuth();
+  const oauth2Client = new auth.OAuth2(clientId, clientSecret);
+  oauth2Client.credentials = token;
+  const sheets = google.sheets('v4');
+  const data = [];
+  return sheets.spreadsheets.values.get(
+    {
+      oauth2Client,
+      spreadsheetId: SPREADSHEET_ID,
+      range: 'Form Responses 1!A2:Z',
+    },
+    function(err, response) {
+      if (err) {
+        console.log('The API returned an error: ' + err);
+        return res(null, {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: 'Something went wrong!',
+          }),
+        });
+      }
+      const rows = response.values;
+      if (rows.length == 0) {
+        console.log('No data found.');
+      } else {
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          const currentEmail = row[2];
+          const currentFullName = row[0];
+          // Check to see if currentRow is target user
+          if (email === currentEmail) {
+            // Find the column for the current date, if it doesn't exist create new one
+            const currentDate = new Date(Date.now()).toDateString();
+            // The column that corresponds to the current date
+            let currentDateCol;
+            const rowLength = row[0].length;
+            // Check the latest date to see if it matches today's date
+            if (currentDate === row[0][rowLength - 1]) {
+              currentDateCol = ALPHABET_MAP[rowLength - 1];
+              // Check to see if user already checked in for current event
+              if (row[rowLength - 1] === 'yes') {
+                return res
+                  .status(409)
+                  .json({ message: `${fullName} already checked in.` });
+              }
 
-app.listen(PORT, (err ) => {
+              // If not, create a new column for today's date
+            } else {
+              currentDateCol = ALPHABET_MAP[rowLength];
+              const values = [[currentDate]];
+              data.push({
+                range: `Form Responses 1!${currentDateCol}1`,
+                majorDimension: 'ROWS',
+                resource: {
+                  values,
+                },
+              });
+            }
+
+            const values = [['yes']];
+            data.push({
+              range: `Form Responses 1!${currentDateCol}${i + 2}`,
+              majorDimension: 'ROWS',
+              resource: {
+                values,
+              },
+            });
+
+            return sheets.spreadsheets.values.batchUpdate(
+              {
+                oauth2Client,
+                spreadsheetId: SPREADSHEET_ID,
+                valueInputOption: 'USER_ENTERED',
+                data,
+              },
+              (err, response) => {
+                if (err) {
+                  console.log(err);
+                  return res
+                    .status(500)
+                    .json({ message: 'Something went wrong!' });
+                }
+
+                return res.status(200).json({ message: fullName });
+              },
+            );
+          }
+        }
+
+        return res.status(404).json({ body: 'Could not find user.' });
+      }
+    },
+  );
+});
+
+app.listen(PORT, err => {
   if (err) {
     console.log(err);
   }
   console.info(`Server running on PORT: ${PORT}`);
 });
-
 
 function generateHTMLBody(firstName, qrUrl) {
   return `<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional //EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head>
@@ -510,5 +629,5 @@ function generateHTMLBody(firstName, qrUrl) {
     <!--[if (mso)|(IE)]></div><![endif]-->
 
 
-  </body></html>`
+  </body></html>`;
 }
