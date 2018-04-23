@@ -200,7 +200,7 @@ app.post('/checkin', (req, res) => {
             let currentDate = new Date(Date.now());
             // Adjust time to match US Timezone
             currentDate.setHours(currentDate.getHours() - 8);
-            currentDateString = currentDate.toString();
+            currentDateString = currentDate.toDateString();
             // The column that corresponds to the current date
             let currentDateCol;
             // Get array of all headers that are not empty
@@ -209,7 +209,7 @@ app.post('/checkin', (req, res) => {
             console.log(rowLength);
 
             // Check the latest date to see if it matches today's date
-            if (currentDate === headerRow[rowLength - 1]) {
+            if (currentDateString === headerRow[rowLength - 1]) {
               // Get the index for the column
               const colNum = rowLength - 1;
               currentDateCol = ALPHABET_MAP[colNum];
@@ -224,7 +224,7 @@ app.post('/checkin', (req, res) => {
             } else {
               const colNum = rowLength;
               currentDateCol = ALPHABET_MAP[colNum];
-              const values = [[currentDate]];
+              const values = [[currentDateString]];
               data.push({
                 range: `Form Responses 1!${currentDateCol}1`,
                 majorDimension: 'ROWS',
