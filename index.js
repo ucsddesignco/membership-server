@@ -195,7 +195,7 @@ app.post('/checkin', (req, res) => {
           const currentEmail = row[2];
           const currentFullName = row[0];
           // Check to see if currentRow is target user
-          if (email === currentEmail) {
+          if (email.toUpperCase() === currentEmail.toUpperCase()) {
             // Find the column for the current date, if it doesn't exist create new one
             let currentDate = new Date(Date.now());
             // Adjust time to match US Timezone
@@ -291,7 +291,7 @@ function generateHTMLBody(firstName, qrUrl) {
     <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
     <!--<![endif]-->
-      
+
       <style type="text/css" id="media-query">
         body {
     margin: 0;
@@ -513,24 +513,24 @@ function generateHTMLBody(firstName, qrUrl) {
 
 
 
-                    
-                    
+
+
                       <div align="center" class="img-container center  autowidth  fullwidth " style="padding-right: 30px;  padding-left: 30px;">
   <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr style="line-height:0px;line-height:0px;"><td style="padding-right: 30px; padding-left: 30px;" align="center"><![endif]-->
   <div style="line-height:30px;font-size:1px">&#160;</div>  <img class="center  autowidth  fullwidth" align="center" border="0" src="https://i.imgur.com/OZorPOF.png" alt="Image" title="Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: 0;height: auto;float: none;width: 100%;max-width: 440px" width="440">
   <div style="line-height:30px;font-size:1px">&#160;</div><!--[if mso]></td></tr></table><![endif]-->
   </div>
 
-                    
-                    
+
+
                       <div class="">
     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;"><![endif]-->
-    <div style="color:#555555;line-height:120%;font-family:'Open Sans', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">	
-      <div style="font-size:12px;line-height:14px;font-family:'Open Sans', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 18px; line-height: 21px;">Hey ${firstName}!</span><br><br><span style="font-size: 18px; line-height: 21px;">Thank you for signing up to be a member of our community! Here's your unique QR Code so that you don’t need to fill out that long form again although we know you want to ;)</span></p><br><img src="${qrUrl}" alt="QR Code"></div>	
+    <div style="color:#555555;line-height:120%;font-family:'Open Sans', Helvetica, Arial, sans-serif; padding-right: 10px; padding-left: 10px; padding-top: 10px; padding-bottom: 10px;">
+      <div style="font-size:12px;line-height:14px;font-family:'Open Sans', Helvetica, Arial, sans-serif;color:#555555;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 17px"><span style="font-size: 18px; line-height: 21px;">Hey ${firstName}!</span><br><br><span style="font-size: 18px; line-height: 21px;">Thank you for signing up to be a member of our community! Here's your unique QR Code so that you don’t need to fill out that long form again although we know you want to ;)</span></p><br><img src="${qrUrl}" alt="QR Code"></div>
     </div>
     <!--[if mso]></td></tr></table><![endif]-->
   </div>
-                    
+
                 <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
                 </div>
               </div>
@@ -547,8 +547,8 @@ function generateHTMLBody(firstName, qrUrl) {
                 <div style="background-color: transparent; width: 100% !important;">
                 <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid transparent; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:0px; padding-bottom:0px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
 
-                    
-                      
+
+
   <table border="0" cellpadding="0" cellspacing="0" width="100%" class="divider " style="border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%">
       <tbody>
           <tr style="vertical-align: top">
@@ -566,7 +566,7 @@ function generateHTMLBody(firstName, qrUrl) {
           </tr>
       </tbody>
   </table>
-                    
+
                 <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
                 </div>
               </div>
@@ -583,8 +583,8 @@ function generateHTMLBody(firstName, qrUrl) {
                 <div style="background-color: transparent; width: 100% !important;">
                 <!--[if (!mso)&(!IE)]><!--><div style="border-top: 0px solid #5ACEE1; border-left: 0px solid transparent; border-bottom: 0px solid transparent; border-right: 0px solid transparent; padding-top:5px; padding-bottom:5px; padding-right: 0px; padding-left: 0px;"><!--<![endif]-->
 
-                    
-                      
+
+
   <div align="center" style="padding-right: 25px; padding-left: 25px; padding-bottom: 25px;" class="">
     <div style="line-height:25px;font-size:1px">&#160;</div>
     <div style="display: table; max-width:191px;">
@@ -618,7 +618,7 @@ function generateHTMLBody(firstName, qrUrl) {
       <!--[if (mso)|(IE)]></td></tr></table></td></tr></table><![endif]-->
     </div>
   </div>
-                    
+
                 <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
                 </div>
               </div>
