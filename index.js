@@ -200,16 +200,24 @@ app.post('/checkin', (req, res) => {
             let currentDate = new Date(Date.now());
             // Adjust time to match US Timezone
             currentDate.setHours(currentDate.getHours() - 8);
-            currentDateString = currentDate.toDateString();
+            const currentDateString = currentDate.toDateString();
             // The column that corresponds to the current date
             let currentDateCol;
             // Get array of all headers that are not empty
             const headerRow = rows[0].filter(header => !!header);
             const rowLength = headerRow.length;
+            // Get the last checkin date from spreadsheet
+            // NOTE: We have to convert it to a date object then get the date string
+            // of it because Google Spreadsheets changes the date text to their own
+            // format so it won't always match up with the native JS date string
+            // e.g. "Tue Jun 5 2018" in JS becomes "Tue June 2018" in Google Spreadsheets
+            const lastCheckinDate = new Date(
+              headerRow[rowLength - 1],
+            ).toDateString();
             console.log(rowLength);
 
             // Check the latest date to see if it matches today's date
-            if (currentDateString === headerRow[rowLength - 1]) {
+            if (currentDateString === lastCheckinDate) {
               // Get the index for the column
               const colNum = rowLength - 1;
               currentDateCol = ALPHABET_MAP[colNum];
